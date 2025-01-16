@@ -6,6 +6,7 @@ namespace Humanity.Application.Services_MongoDB
 {
     public class DonationService
     {
+        // Privatna polja za rad sa MongoDB i SQL UnitOfWork-om
         private readonly IMongoUnitOfWork _unitOfWork;
         private readonly IUnitOfWork _unitOfWork_SQL;
 
@@ -15,101 +16,106 @@ namespace Humanity.Application.Services_MongoDB
             _unitOfWork_SQL = unitOfWork_SQL;
         }
 
+        // Metoda za dobijanje donacije po ID-u
         public async Task<MongoDB_DonationDto> GetDonationByIdAsync(string id)
         {
-            // Fetch the donation by ID using MongoDB repository
             var donation = await _unitOfWork.DonationRepository.GetById(id);
             if (donation == null)
             {
                 throw new Exception("Donation not found.");
             }
+            // Mapiranje entiteta na DTO objekat za povrat korisniku
             return new MongoDB_DonationDto
             {
                 Id = donation.Id,
                 DonorId = donation.DonorId,
                 DateReceived = donation.DateReceived,
                 Value = donation.Value,
-                Category = (MongoDB_DonationCategory)(int)donation.Category,
+                Category = (MongoDB_DonationCategory)(int)donation.Category, // Konverzija kategorije
                 IsAnonymous = donation.IsAnonymous,
                 IsDistributed = donation.IsDistributed
             };
         }
 
+        // Metoda za dobijanje svih donacija
         public async Task<IEnumerable<MongoDB_DonationDto>> GetAllDonationsAsync()
         {
-            // Fetch all donations using MongoDB repository
             var donations = await _unitOfWork.DonationRepository.GetAll();
+
+            // Mapiranje kolekcije entiteta na kolekciju DTO objekata
             return donations.Select(donation => new MongoDB_DonationDto
             {
                 Id = donation.Id,
                 DonorId = donation.DonorId,
                 DateReceived = donation.DateReceived,
                 Value = donation.Value,
-                Category = (MongoDB_DonationCategory)(int)donation.Category,
+                Category = (MongoDB_DonationCategory)(int)donation.Category, // Konverzija kategorije
                 IsAnonymous = donation.IsAnonymous,
                 IsDistributed = donation.IsDistributed
             });
         }
 
+        // Metoda za kreiranje nove donacije
         public async Task<Donation> CreateDonationAsync(MongoDB_CreateDonationDto createDonationDto)
         {
-            // Dohvatamo informacije o donoru
+            // Dohvatanje informacije o donatoru iz SQL baze
             var donor = await _unitOfWork_SQL.UserRepository.GetById(createDonationDto.DonorId);
             if (donor == null)
             {
                 throw new Exception("Donor not found.");
             }
 
-            // Create a new donation
+            // Kreiranje novog entiteta donacije
             var donation = new Donation
             {
                 DonorId = createDonationDto.DonorId,
                 Value = createDonationDto.Value,
                 Category = (Humanity.Infrastructure.MongoDB.Models.MongoDB.DonationCategory)(int)createDonationDto.Category,
                 IsAnonymous = donor.IsAnonymous,
-                IsDistributed = false, // Initial value
+                IsDistributed = false, 
                 DateReceived = DateTime.UtcNow
             };
 
-            // Add the new donation to the repository
+            // Dodavanje donacije u MongoDB
             await _unitOfWork.DonationRepository.Add(donation);
 
-            // Commit the changes to the database
+            // Čuvanje promena u bazi podataka
             await _unitOfWork.CompleteAsync();
 
             return donation;
         }
 
+        // Metoda za ažuriranje postojeće donacije
         public async Task<bool> UpdateDonationAsync(string id, MongoDB_UpdateDonationDto updateDonationDto)
         {
-            // Fetch the donation by ID
+            // Dohvatanje donacije iz baze na osnovu ID-a
             var donation = await _unitOfWork.DonationRepository.GetById(id);
             if (donation == null) return false;
 
-            // Update the fields
+            // Ažuriranje polja donacije
             donation.Value = updateDonationDto.Value;
             donation.Category = (Humanity.Infrastructure.MongoDB.Models.MongoDB.DonationCategory)(int)updateDonationDto.Category;
 
-            // Call the repository's Update method to persist the changes
+            // Ažuriranje u repozitorijumu
             await _unitOfWork.DonationRepository.Update(donation);
 
-            // Commit the changes to the database
-            await _unitOfWork.DonationRepository.Update(donation);
+            // Čuvanje promena
             await _unitOfWork.CompleteAsync();
 
             return true;
         }
 
+        // Metoda za brisanje donacije
         public async Task<bool> DeleteDonationAsync(string id)
         {
-            // Fetch the donation by ID
+            // Dohvatanje donacije iz baze na osnovu ID-a
             var donation = await _unitOfWork.DonationRepository.GetById(id);
             if (donation == null) return false;
 
-            // Delete the donation from the repository
+            // Brisanje donacije iz baze
             await _unitOfWork.DonationRepository.Delete(id);
 
-            // Commit the changes to the database
+            // Čuvanje promena
             await _unitOfWork.CompleteAsync();
 
             return true;

@@ -21,6 +21,7 @@ namespace Humanity.Application.Services
         {
             // Koristimo relacijsku bazu podataka za preuzimanje zahvalnice
             var thankYouNote = await _unitOfWork.ThankYouNoteRepository.GetById(id);
+            // Mapiramo zahvalnicu iz entiteta ThankYouNote u DTO objekat ThankYouNoteDto
             return _mapper.Map<ThankYouNoteDto>(thankYouNote);
         }
 
@@ -28,41 +29,52 @@ namespace Humanity.Application.Services
         {
             // Koristimo relacijsku bazu podataka za preuzimanje svih zahvalnica
             var thankYouNotes = _unitOfWork.ThankYouNoteRepository.GetAll();
+            // Mapiramo kolekciju zahvalnica iz entiteta ThankYouNote u kolekciju DTO objekata ThankYouNoteDto
             return _mapper.Map<IEnumerable<ThankYouNoteDto>>(thankYouNotes);
         }
 
         public async Task<ThankYouNoteDto> CreateThankYouNoteAsync(CreateThankYouNoteDto createThankYouNoteDto)
         {
-            // Kreiramo zahvalnicu u relacijskoj bazi podataka
+            // Mapiramo DTO objekat CreateThankYouNoteDto u entitet ThankYouNote
             var thankYouNote = _mapper.Map<ThankYouNote>(createThankYouNoteDto);
+            // Dodajemo novu zahvalnicu u repozitorijum
             await _unitOfWork.ThankYouNoteRepository.Add(thankYouNote);
 
+            // Čuvamo promene u bazi podataka (commit transakcije)
             await _unitOfWork.CompleteAsync();
 
+            // Mapiramo kreiranu zahvalnicu nazad u DTO objekat ThankYouNoteDto
             return _mapper.Map<ThankYouNoteDto>(thankYouNote);
         }
 
         public async Task<bool> UpdateThankYouNoteAsync(int id, UpdateThankYouNoteDto updateThankYouNoteDto)
         {
-            // Ažuriramo zahvalnicu u relacijskoj bazi podataka
+            // Preuzimamo zahvalnicu iz baze podataka na osnovu njenog ID-a
             var thankYouNote = await _unitOfWork.ThankYouNoteRepository.GetById(id);
             if (thankYouNote == null) return false;
+            // Mapiramo svojstva iz DTO objekta u postojeći entitet zahvalnice
             _mapper.Map(updateThankYouNoteDto, thankYouNote);
 
-            await _unitOfWork.CompleteAsync();
+            // Čuvamo promene u bazi podataka
+            await _unitOfWork.CompleteAsync(); // Ažuriranje se dešava implicitno – nije potrebno ručno pozivati metodu Update jer ORM prepoznaje promene na entitetima koji su preuzeti iz baze
 
+            // Vraćamo true jer je operacija uspešno izvršena
             return true;
         }
 
         public async Task<bool> DeleteThankYouNoteAsync(int id)
         {
-            // Brišemo zahvalnicu iz relacijske baze podataka
+            // Preuzimamo zahvalnicu iz baze podataka na osnovu njenog ID-a
             var thankYouNote = await _unitOfWork.ThankYouNoteRepository.GetById(id);
             if (thankYouNote == null) return false;
+
+            // Brišemo zahvalnicu iz repozitorijuma
             await _unitOfWork.ThankYouNoteRepository.Delete(thankYouNote);
 
+            // Čuvamo promene u bazi podataka
             await _unitOfWork.CompleteAsync();
 
+            // Vraćamo true jer je operacija uspešno izvršena
             return true;
         }
     }

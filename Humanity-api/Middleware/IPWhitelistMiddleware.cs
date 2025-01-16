@@ -3,6 +3,8 @@ using System.Net;
 
 namespace Humanity.API.Middleware
 {
+    // One se automatski koriste kada je IPWhitelistMiddleware registrovan i postavljen u middleware
+    // pipeline aplikacije
     public class IPWhitelistMiddleware
     {
         private readonly RequestDelegate _next;
@@ -29,9 +31,9 @@ namespace Humanity.API.Middleware
             var ipAddress = context.Connection.RemoteIpAddress;
 
             // Provera da li je IP adresa već u cache-u
-            if (!_cache.TryGetValue(ipAddress, out _))
+            if (!_cache.TryGetValue(ipAddress, out _)) // Middleware koristi IMemoryCache za keširanje već proveravanih IP adresa
             {
-                // Logovanje pokušaja pristupa
+                // Logovanje pokušaja pristupa (Middleware loguje pokušaj pristupa za svaku IP adresu koja nije u kešu)
                 _logger.LogInformation($"IP address {ipAddress} attempted to access the system at {DateTime.UtcNow}");
 
                 // Provera da li je IP adresa dozvoljena
@@ -46,7 +48,7 @@ namespace Humanity.API.Middleware
                 // Ako je IP adresa dozvoljena, dodavanje u cache sa rokom trajanja od 5 minuta
                 _cache.Set(ipAddress, true, new MemoryCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) // Example cache duration
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
                 });
             }
 
@@ -74,4 +76,7 @@ namespace Humanity.API.Middleware
             return false;
         }
     }
+    // Pipeline je "cevovod" kroz koji prolaze HTTP zahtevi i odgovori. U ovom kodu, middleware
+    // IPWhitelistMiddleware je deo tog pipeline-a i služi za kontrolu pristupa na osnovu IP adresa.
+    // Svaki zahtev mora proći kroz ovaj middleware pre nego što stigne do ostatka aplikacije.
 }

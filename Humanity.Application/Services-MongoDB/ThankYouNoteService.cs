@@ -5,17 +5,19 @@ namespace Humanity.Application.Services_MongoDB
 {
     public class ThankYouNoteService
     {
+        // Privatno polje za upravljanje transakcijama i repozitorijumima
         private readonly IMongoUnitOfWork _unitOfWork;
 
         public ThankYouNoteService(IMongoUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork; // Povezivanje sa UnitOfWork-om
         }
 
+        // Metoda za preuzimanje zahvalnice na osnovu ID-a
         public async Task<MongoDB_ThankYouNoteDto> GetThankYouNoteByIdAsync(string id)
         {
-            // Fetch the thank-you note by ID using MongoDB repository
             var thankYouNote = await _unitOfWork.ThankYouNoteRepository.GetById(id);
+            // Mapiranje entiteta na DTO objekat i vraćanje korisniku
             return new MongoDB_ThankYouNoteDto
             {
                 Id = thankYouNote.Id,
@@ -26,10 +28,11 @@ namespace Humanity.Application.Services_MongoDB
             };
         }
 
+        // Metoda za preuzimanje svih zahvalnica
         public async Task<IEnumerable<MongoDB_ThankYouNoteDto>> GetAllThankYouNotesAsync()
         {
-            // Fetch all thank-you notes using MongoDB repository
             var thankYouNotes = await _unitOfWork.ThankYouNoteRepository.GetAll();
+            // Mapiranje liste entiteta na listu DTO objekata
             return thankYouNotes.Select(thankYouNote => new MongoDB_ThankYouNoteDto
             {
                 Id = thankYouNote.Id,
@@ -40,9 +43,10 @@ namespace Humanity.Application.Services_MongoDB
             });
         }
 
+        // Metoda za kreiranje nove zahvalnice
         public async Task<ThankYouNote> CreateThankYouNoteAsync(MongoDB_CreateThankYouNoteDto createThankYouNoteDto)
         {
-            // Create a new thank-you note
+            // Kreiranje novog entiteta na osnovu DTO objekta
             var thankYouNote = new ThankYouNote
             {
                 SenderId = createThankYouNoteDto.SenderId,
@@ -51,47 +55,49 @@ namespace Humanity.Application.Services_MongoDB
                 Rating = createThankYouNoteDto.Rating
             };
 
-            // Add the new thank-you note to the repository
+            // Dodavanje zahvalnice u repozitorijum
             await _unitOfWork.ThankYouNoteRepository.Add(thankYouNote);
 
-            // Commit the changes to the database
+            // Čuvanje promena u bazi podataka
             await _unitOfWork.CompleteAsync();
 
-            return thankYouNote;
+            return thankYouNote; // Vraćanje kreirane zahvalnice
         }
 
+        // Metoda za ažuriranje postojeće zahvalnice
         public async Task<bool> UpdateThankYouNoteAsync(string id, MongoDB_UpdateThankYouNoteDto updateThankYouNoteDto)
         {
-            // Fetch the thank-you note by ID
+            // Dohvatanje postojeće zahvalnice na osnovu ID-a
             var thankYouNote = await _unitOfWork.ThankYouNoteRepository.GetById(id);
             if (thankYouNote == null) return false;
 
-            // Update the fields
+            // Ažuriranje polja zahvalnice na osnovu DTO-a
             thankYouNote.Message = updateThankYouNoteDto.Message;
             thankYouNote.Rating = updateThankYouNoteDto.Rating;
 
-            // Call the repository's Update method to persist the changes
+            // Ažuriranje entiteta u repozitorijumu
             await _unitOfWork.ThankYouNoteRepository.Update(thankYouNote);
 
-            // Commit the changes to the database
+            // Čuvanje promena u bazi podataka
             await _unitOfWork.CompleteAsync();
 
-            return true;
+            return true; // Uspešno ažuriranje
         }
 
+        // Metoda za brisanje zahvalnice
         public async Task<bool> DeleteThankYouNoteAsync(string id)
         {
-            // Fetch the thank-you note by ID
+            // Dohvatanje zahvalnice na osnovu ID-a
             var thankYouNote = await _unitOfWork.ThankYouNoteRepository.GetById(id);
             if (thankYouNote == null) return false;
 
-            // Delete the thank-you note from the repository
+            // Brisanje zahvalnice iz repozitorijuma
             await _unitOfWork.ThankYouNoteRepository.Delete(id);
 
-            // Commit the changes to the database
+            // Čuvanje promena u bazi podataka
             await _unitOfWork.CompleteAsync();
 
-            return true;
+            return true; // Uspešno brisanje
         }
     }
     public class MongoDB_CreateThankYouNoteDto

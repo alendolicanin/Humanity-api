@@ -49,12 +49,15 @@ namespace Humanity_api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateDistributedDonation([FromBody] MongoDB_CreateDistributedDonationDto createDto)
         {
+            // Proverava validaciju ulaznih podataka
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
+                // Kreira novu distribuiranu donaciju koristeći servis
                 var createdDonation = await _distributedDonationService.CreateDistributedDonationAsync(createDto);
+                // Vraća 201 Created s lokacijom i kreiranim objektom
                 return CreatedAtAction(nameof(GetDistributedDonationById), new { id = createdDonation.Id }, createdDonation);
             }
             catch (Exception ex)

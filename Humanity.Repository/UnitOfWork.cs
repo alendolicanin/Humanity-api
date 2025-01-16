@@ -30,6 +30,9 @@ namespace Humanity.Repository
         }
 
         // Metoda za potvrđivanje i čuvanje svih promena u bazi podataka
+        // kako bi se omogućilo grupisanje i upravljanje skupom operacija kao jedinstvenom transakcijom
+        // Njegova osnovna svrha je da obezbedi konsistentnost podataka i pojednostavi rad sa
+        // repozitorijumima
         public async Task<bool> CompleteAsync()
         {
             // Čuvanje promena u bazi podataka i vraćanje broja promenjenih redova

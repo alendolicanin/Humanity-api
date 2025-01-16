@@ -33,7 +33,7 @@ namespace Humanity.Application.Services
             return _mapper.Map<DonationDto>(donation);
         }
 
-        // Metoda za preuzimanje svih donacija sa mogućnošću filtriranja i sortiranja
+        // Metoda za preuzimanje svih donacija sa mogućnošću filtriranja, sortiranja i paginacije
         public async Task<IEnumerable<DonationDto>> GetAllDonationsAsync(DonationQueryDto queryDto)
         {
             // Koristimo relacijsku bazu podataka za preuzimanje donacija
@@ -53,30 +53,42 @@ namespace Humanity.Application.Services
             // Primena sortiranja
             if (!string.IsNullOrEmpty(queryDto.SortBy) && sortColumns.ContainsKey(queryDto.SortBy))
             {
+                // Ako je u queryDto specificirana kolona za sortiranje i ta kolona postoji u sortColumns mapi,
+                // pozivamo ekstenziju ApplySorting koja primenjuje sortiranje
                 query = query.ApplySorting(queryDto, sortColumns);
             }
             else
             {
-                query = query.OrderBy(d => d.DateReceived); // Podrazumevano sortiranje
+                // Ako nije specificirano sortiranje, podrazumevano sortiramo prema datumu primanja donacije
+                query = query.OrderBy(d => d.DateReceived);
             }
 
             // Filtriranje po datumu primanja donacije
             if (queryDto.DateReceived.HasValue)
             {
+                // Ako queryDto sadrži vrednost za DateReceived, filtriramo donacije prema datumu.
+                // Poređenje koristi samo datum (bez vremena)
                 query = query.Where(d => d.DateReceived.Date == queryDto.DateReceived.Value.Date);
             }
 
             // Filtriranje po kategoriji
             if (queryDto.Category.HasValue)
             {
-                var categoryEnum = (DonationCategory)queryDto.Category.Value; // Pretvaranje int u enum
+                // Ako queryDto sadrži vrednost za kategoriju, pretvaramo tu vrednost iz int u odgovarajući enum
+                var categoryEnum = (DonationCategory)queryDto.Category.Value;
+                // Filtriramo donacije tako da odgovaraju specificiranoj kategoriji
                 query = query.Where(d => d.Category == categoryEnum);
             }
 
             // Filtriranje po imenu ili prezimenu donatora
             if (!string.IsNullOrEmpty(queryDto.DonorName))
             {
+                // Ako je u queryDto specificirano ime ili prezime donatora, konvertujemo ga u mala slova za poređenje
                 var donorName = queryDto.DonorName.ToLower();
+
+                // Filtriramo donacije prema imenu ili prezimenu donatora.
+                // Ignorišemo anonimne donacije (d.IsAnonymous).
+                // Koristimo Contains za delimično poređenje (npr. pretraga za "John" pronalazi "Johnson").
                 query = query.Where(d =>
                     !d.IsAnonymous &&
                     (d.Donor.FirstName.ToLower().Contains(donorName) ||
@@ -87,6 +99,8 @@ namespace Humanity.Application.Services
             query = query.ApplyPaging(queryDto);
 
             // Mapiranje donacija u DonationDto
+            // Izvršavamo upit sa ToListAsync kako bismo preuzeli rezultate iz baze podataka.
+            // Rezultat (lista donacija) mapiramo u DTO (DonationDto)
             return _mapper.Map<IEnumerable<DonationDto>>(await query.ToListAsync());
         }
 

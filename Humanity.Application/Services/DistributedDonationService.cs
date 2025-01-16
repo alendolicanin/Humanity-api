@@ -19,6 +19,7 @@ namespace Humanity.Application.Services
 
         public async Task<DistributedDonationDto> GetDistributedDonationByIdAsync(int id)
         {
+            // Koristimo relacijsku bazu podataka za preuzimanje podeljene donacije po ID-u
             var distributedDonation = await _unitOfWork.DistributedDonationRepository.GetById(id);
             if (distributedDonation == null)
             {
@@ -74,6 +75,7 @@ namespace Humanity.Application.Services
             // Kreiramo distribuiranu donaciju za bazu
             var distributedDonation = _mapper.Map<DistributedDonation>(createDistributedDonationDto);
             distributedDonation.DonationId = originalDonation.Id; // Koristimo pravi ID donacije za SQL vezu
+            //  Kako bih osigurao da polje DonationId u entitetu distribuirane donacije tačno ukazuje na ID originalne donacije
 
             // Čuvamo distribuiranu donaciju u relacijskoj bazi podataka (ID se generiše nakon dodavanja)
             var addedDistributedDonation = await _unitOfWork.DistributedDonationRepository.Add(distributedDonation);

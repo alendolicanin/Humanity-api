@@ -17,7 +17,7 @@ namespace Humanity.API.Controllers
             _mediator = mediator;
         }
 
-        // Akcija za kreiranje korisnika (Admin može kreirati korisnike)
+        // Akcija za kreiranje korisnika
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser(CreateUserDto createUserDto)
         {
@@ -32,7 +32,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za dobijanje korisnika po ID-u (Admin može videti korisnika po ID-u)
+        // Akcija za dobijanje korisnika po ID-u
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
@@ -47,7 +47,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za dobijanje svih korisnika (Admin može videti sve korisnike)
+        // Akcija za dobijanje svih korisnika
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -62,7 +62,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za ažuriranje korisnika (Admin može ažurirati korisnike)
+        // Akcija za ažuriranje korisnika
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateUser(string id, UpdateUserDto updateUserDto)
         {
@@ -77,7 +77,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za brisanje korisnika (Admin može brisati korisnike)
+        // Akcija za brisanje korisnika
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -92,7 +92,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za odobravanje korisnika (Admin može odobravati korisnike)
+        // Akcija za odobravanje korisnika
         [HttpPost("approve/{id}")]
         public async Task<IActionResult> ApproveUser(string id)
         {
@@ -107,7 +107,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za odbijanje korisnika (Admin može odbijati korisnike)
+        // Akcija za odbijanje korisnika
         [HttpPost("reject/{id}")]
         public async Task<IActionResult> RejectUser(string id)
         {
@@ -122,7 +122,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za dobijanje korisnika koji čekaju na odobrenje (Admin može videti korisnike koji čekaju na odobrenje)
+        // Akcija za dobijanje korisnika koji čekaju na odobrenje
         [HttpGet("pending-approval")]
         public async Task<IActionResult> GetPendingApprovalUsers()
         {

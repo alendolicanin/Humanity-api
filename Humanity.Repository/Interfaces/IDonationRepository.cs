@@ -12,6 +12,6 @@ namespace Humanity.Repository.Interfaces
         // IQueryable<Donation> GetAll() omogućava dalju manipulaciju
         // upitom pre nego što se on izvrši
 
-        IQueryable<Donation> GetAll(); // Ova metoda omogućava filtriranje, sortiranje i paginaciju
+        IQueryable<Donation> GetAll(); // Omogućava efikasno filtriranje, sortiranje i paginaciju pre nego što se podaci preuzmu iz baze
     }
 }

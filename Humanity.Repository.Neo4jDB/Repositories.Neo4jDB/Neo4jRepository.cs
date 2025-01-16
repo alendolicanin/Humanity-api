@@ -109,14 +109,24 @@ namespace Humanity.Repository.Neo4jDB.Repositories.Neo4jDB
         // Pomoćna metoda za mapiranje Node na entitet
         private T MapNodeToEntity(INode node)
         {
+            // Kreiramo novu instancu generičkog tipa T (entiteta)
             var entity = new T();
+
+            // Prolazimo kroz sva svojstva klase T (entiteta)
             foreach (var property in typeof(T).GetProperties())
             {
+                // Proveravamo da li čvor (Node) ima svojstvo sa imenom koje odgovara trenutnom svojstvu entiteta
+                // i da li to svojstvo nije null
                 if (node.Properties.ContainsKey(property.Name) && node.Properties[property.Name] != null)
                 {
+                    // Postavljamo vrednost svojstva entiteta koristeći vrednost iz čvora (Node)
+                    // Convert.ChangeType se koristi za konverziju tipa vrednosti iz Node-a u odgovarajući tip svojstva entiteta
                     property.SetValue(entity, Convert.ChangeType(node.Properties[property.Name], property.PropertyType));
                 }
+                // Ukratko: Prolazi kroz sva svojstva entiteta i popunjava ih vrednostima iz svojstava
+                // čvora koja imaju odgovarajuće ime
             }
+            // Vraćamo popunjenu instancu entiteta
             return entity;
         }
     }

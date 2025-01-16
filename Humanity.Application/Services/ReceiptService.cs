@@ -20,6 +20,7 @@ namespace Humanity.Application.Services
         {
             // Koristimo relacijsku bazu podataka za preuzimanje računa
             var receipt = await _unitOfWork.ReceiptRepository.GetById(id);
+            // Mapiramo entitet Receipt na DTO ReceiptDto i vraćamo rezultat
             return _mapper.Map<ReceiptDto>(receipt);
         }
 
@@ -27,24 +28,28 @@ namespace Humanity.Application.Services
         {
             // Koristimo relacijsku bazu podataka za preuzimanje svih računa
             var receipts = await _unitOfWork.ReceiptRepository.GetAll();
+            // Mapiramo kolekciju entiteta Receipt na kolekciju DTO objekata ReceiptDto i vraćamo rezultat
             return _mapper.Map<IEnumerable<ReceiptDto>>(receipts);
         }
 
+        // Metoda za potvrđivanje potpisa na računu
         public async Task<bool> ConfirmSignatureAsync(int receiptId, string recipientId)
         {
-            // Pronalazimo račun
+            // Preuzimamo račun na osnovu ID-a
             var receipt = await _unitOfWork.ReceiptRepository.GetById(receiptId);
             if (receipt == null)
                 throw new Exception("Receipt not found.");
 
-            // Pronalazimo primaoca
+            // Preuzimamo korisnika (primaoca) na osnovu njegovog ID-a
             var recipient = await _unitOfWork.UserRepository.GetById(recipientId);
             if (recipient == null)
                 throw new Exception("Recipient not found.");
 
-            // Ažuriramo potpis
+            // Postavljamo potpis računa koristeći ime i prezime primaoca
             receipt.Signature = $"{recipient.FirstName} {recipient.LastName}";
+            // Ažuriramo račun u repozitorijumu
             await _unitOfWork.ReceiptRepository.Update(receipt);
+            // Čuvamo promene u bazi podataka
             await _unitOfWork.CompleteAsync();
 
             return true; // Potvrđujemo da je potpis uspešno dodat
@@ -52,14 +57,16 @@ namespace Humanity.Application.Services
 
         public async Task<bool> DeleteReceiptAsync(int id)
         {
-            // Brišemo račun iz relacijske baze podataka
+            // Preuzimamo račun na osnovu ID-a
             var receipt = await _unitOfWork.ReceiptRepository.GetById(id);
             if (receipt == null) return false;
-            await _unitOfWork.ReceiptRepository.Delete(receipt);
 
+            // Brišemo račun iz repozitorijuma
+            await _unitOfWork.ReceiptRepository.Delete(receipt);
+            // Čuvamo promene u bazi podataka
             await _unitOfWork.CompleteAsync();
 
-            return true;
+            return true; // Vraćamo true kao potvrdu da je račun uspešno obrisan
         }
     }
 }

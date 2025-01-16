@@ -18,7 +18,7 @@ namespace Humanity.Infrastructure.Neo4jDB
         public IAsyncSession GetSession()
         {
             // Vraćanje asinhrone sesije sa podrazumevanim načinom pristupa kao Write
-            return _driver.AsyncSession(o => o.WithDefaultAccessMode(AccessMode.Write));
+            return _driver.AsyncSession(o => o.WithDefaultAccessMode(AccessMode.Write)); // sesija pokušati da izvrši operacije koje menjaju podatke u bazi
         }
 
         // Implementacija IDisposable interfejsa za pravilno oslobađanje resursa

@@ -20,6 +20,7 @@ namespace Humanity.Infrastructure.MongoDB
 
         // Svojstva koja vraćaju kolekcije iz baze podataka
         public IMongoCollection<Donation> Donations => _database.GetCollection<Donation>("Donations");
+        // Kolekcija sadrži dokumente koji odgovaraju klasi Donation         // <Donation> znači da očekujemo da dokumenti u toj kolekciji imaju strukturu definisanu u klasi Donation
         public IMongoCollection<DistributedDonation> DistributedDonations => _database.GetCollection<DistributedDonation>("DistributedDonations");
         public IMongoCollection<Receipt> Receipts => _database.GetCollection<Receipt>("Receipts");
         public IMongoCollection<ThankYouNote> ThankYouNotes => _database.GetCollection<ThankYouNote>("ThankYouNotes");

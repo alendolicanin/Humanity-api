@@ -34,10 +34,13 @@ namespace Humanity_api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateThankYouNote([FromBody] Neo4j_CreateThankYouNoteDto createDto)
         {
+            // Proverava validaciju ulaznih podataka
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            // Kreira novu zahvalnicu koristeći servis
             var createdNote = await _thankYouNoteService.CreateThankYouNoteAsync(createDto);
+            // Vraća 201 Created s lokacijom i kreiranim objektom
             return CreatedAtAction(nameof(GetThankYouNoteById), new { id = createdNote.Id }, createdNote);
         }
 

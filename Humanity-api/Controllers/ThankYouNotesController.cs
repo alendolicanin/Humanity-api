@@ -17,7 +17,7 @@ namespace Humanity.API.Controllers
             _mediator = mediator;
         }
 
-        // Akcija za kreiranje zahvalnice (Recipient može kreirati zahvalnice)
+        // Akcija za kreiranje zahvalnice
         [HttpPost("create")]
         public async Task<IActionResult> CreateThankYouNote(CreateThankYouNoteDto createThankYouNoteDto)
         {
@@ -32,7 +32,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za dobijanje zahvalnice po ID-u (Admin i Donor mogu videti zahvalnice)
+        // Akcija za dobijanje zahvalnice po ID-u
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetThankYouNoteById(int id)
         {
@@ -47,7 +47,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za dobijanje svih zahvalnica (Admin može videti sve zahvalnice)
+        // Akcija za dobijanje svih zahvalnica
         [HttpGet("all")]
         public async Task<IActionResult> GetAllThankYouNotes()
         {
@@ -62,7 +62,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za ažuriranje zahvalnice (Admin može ažurirati zahvalnice)
+        // Akcija za ažuriranje zahvalnice
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateThankYouNote(int id, UpdateThankYouNoteDto updateThankYouNoteDto)
         {
@@ -77,7 +77,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za brisanje zahvalnice (Admin može brisati zahvalnice)
+        // Akcija za brisanje zahvalnice
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteThankYouNote(int id)
         {

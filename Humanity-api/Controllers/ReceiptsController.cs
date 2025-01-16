@@ -18,7 +18,7 @@ namespace Humanity.API.Controllers
             _mediator = mediator;
         }
 
-        // Akcija za dobijanje računa po ID-u (Admin može videti račune)
+        // Akcija za dobijanje računa po ID-u
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetReceiptById(int id)
         {
@@ -33,7 +33,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za dobijanje svih računa (Admin može videti sve račune)
+        // Akcija za dobijanje svih računa
         [HttpGet("all")]
         public async Task<IActionResult> GetAllReceipts()
         {
@@ -48,6 +48,7 @@ namespace Humanity.API.Controllers
             }
         }
 
+        // Akcija za potpisivanje 
         [HttpPost("confirm-signature")]
         public async Task<IActionResult> ConfirmSignature(int receiptId, string recipientId)
         {
@@ -67,7 +68,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za brisanje računa (Admin može brisati račune)
+        // Akcija za brisanje računa
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteReceipt(int id)
         {

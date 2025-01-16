@@ -5,6 +5,7 @@ namespace Humanity.Application.Services_Neo4jDB
 {
     public class ThankYouNoteService
     {
+        // Privatno polje za upravljanje transakcijama i repozitorijumima za Neo4j
         private readonly INeo4jUnitOfWork _unitOfWork;
 
         public ThankYouNoteService(INeo4jUnitOfWork unitOfWork)
@@ -12,15 +13,16 @@ namespace Humanity.Application.Services_Neo4jDB
             _unitOfWork = unitOfWork;
         }
 
+        // Metoda za preuzimanje zahvalnice na osnovu ID-a
         public async Task<Neo4j_ThankYouNoteDto> GetThankYouNoteByIdAsync(string id)
         {
-            // Fetch the thank-you note by ID using Neo4j repository
             var thankYouNote = await _unitOfWork.ThankYouNoteRepository.GetById(id);
             if (thankYouNote == null)
             {
                 throw new Exception("Thank you note not found.");
             }
 
+            // Mapiranje zahvalnice u DTO objekat za prikaz korisniku
             return new Neo4j_ThankYouNoteDto
             {
                 Id = thankYouNote.Id,
@@ -31,11 +33,12 @@ namespace Humanity.Application.Services_Neo4jDB
             };
         }
 
+        // Metoda za preuzimanje svih zahvalnica
         public async Task<IEnumerable<Neo4j_ThankYouNoteDto>> GetAllThankYouNotesAsync()
         {
-            // Fetch all thank-you notes using Neo4j repository
             var thankYouNotes = await _unitOfWork.ThankYouNoteRepository.GetAll();
 
+            // Mapiranje svake zahvalnice u DTO objekat
             return thankYouNotes.Select(thankYouNote => new Neo4j_ThankYouNoteDto
             {
                 Id = thankYouNote.Id,
@@ -46,56 +49,55 @@ namespace Humanity.Application.Services_Neo4jDB
             });
         }
 
+        // Metoda za kreiranje nove zahvalnice
         public async Task<ThankYouNote> CreateThankYouNoteAsync(Neo4j_CreateThankYouNoteDto createThankYouNoteDto)
         {
-            // Create a new thank-you note
+            // Kreiranje novog entiteta zahvalnice
             var thankYouNote = new ThankYouNote
             {
-                Id = Guid.NewGuid().ToString(), // Generate unique ID
+                Id = Guid.NewGuid().ToString(), 
                 SenderId = createThankYouNoteDto.SenderId,
                 DonorId = createThankYouNoteDto.DonorId,
                 Message = createThankYouNoteDto.Message,
                 Rating = createThankYouNoteDto.Rating
             };
 
-            // Add the new thank-you note to the repository
+            // Dodavanje nove zahvalnice u Neo4j repozitorijum
             await _unitOfWork.ThankYouNoteRepository.Add(thankYouNote);
 
-            // Commit the changes to the database
             await _unitOfWork.CompleteAsync();
 
             return thankYouNote;
         }
 
+        // Metoda za ažuriranje postojeće zahvalnice
         public async Task<bool> UpdateThankYouNoteAsync(string id, Neo4j_UpdateThankYouNoteDto updateThankYouNoteDto)
         {
-            // Fetch the thank-you note by ID
             var thankYouNote = await _unitOfWork.ThankYouNoteRepository.GetById(id);
             if (thankYouNote == null) return false;
 
-            // Update the fields
+            // Ažuriranje polja zahvalnice na osnovu prosleđenih podataka
             thankYouNote.Message = updateThankYouNoteDto.Message;
             thankYouNote.Rating = updateThankYouNoteDto.Rating;
 
-            // Call the repository's Update method to persist the changes
+            // Čuvanje ažurirane zahvalnice u repozitorijumu
             await _unitOfWork.ThankYouNoteRepository.Update(thankYouNote);
 
-            // Commit the changes to the database
             await _unitOfWork.CompleteAsync();
 
             return true;
         }
 
+        // Metoda za brisanje zahvalnice na osnovu ID-a
         public async Task<bool> DeleteThankYouNoteAsync(string id)
         {
-            // Fetch the thank-you note by ID
             var thankYouNote = await _unitOfWork.ThankYouNoteRepository.GetById(id);
             if (thankYouNote == null) return false;
 
-            // Delete the thank-you note from the repository
+            // Brisanje zahvalnice iz repozitorijuma
             await _unitOfWork.ThankYouNoteRepository.Delete(id);
 
-            // Commit the changes to the database
+            // Čuvanje promena u bazi podataka
             await _unitOfWork.CompleteAsync();
 
             return true;

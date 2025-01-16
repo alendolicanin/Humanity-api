@@ -17,7 +17,7 @@ namespace Humanity.API.Controllers
             _mediator = mediator;
         }
 
-        // Akcija za kreiranje donacije (Admin i Donor mogu kreirati donacije)
+        // Akcija za kreiranje donacije
         [HttpPost("create")]
         public async Task<IActionResult> CreateDonation(CreateDonationDto createDonationDto)
         {
@@ -37,7 +37,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za dobijanje donacije po ID-u (Admin, Donor i Recipient mogu videti donacije)
+        // Akcija za dobijanje donacije po ID-u
         [HttpGet("get-by-id/{id}")]
         public async Task<IActionResult> GetDonationById(int id)
         {
@@ -52,7 +52,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za dobijanje svih donacija (Admin može videti sve donacije)
+        // Akcija za dobijanje svih donacija
         [HttpGet("all")]
         public async Task<IActionResult> GetAllDonations([FromQuery] DonationQueryDto queryDto)
         {
@@ -67,7 +67,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za ažuriranje donacije (Admin može ažurirati donacije)
+        // Akcija za ažuriranje donacije
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateDonation(int id, UpdateDonationDto updateDonationDto)
         {
@@ -82,7 +82,7 @@ namespace Humanity.API.Controllers
             }
         }
 
-        // Akcija za brisanje donacije (Admin može brisati donacije)
+        // Akcija za brisanje donacije
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteDonation(int id)
         {

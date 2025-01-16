@@ -6,6 +6,7 @@ namespace Humanity.Application.Services_MongoDB
 {
     public class DistributedDonationService
     {
+        // Privatna polja za rad sa MongoDB i SQL UnitOfWork-om
         private readonly IMongoUnitOfWork _unitOfWork;
         private readonly IUnitOfWork _unitOfWork_SQL;
 
@@ -15,9 +16,11 @@ namespace Humanity.Application.Services_MongoDB
             _unitOfWork_SQL = unitOfWork_SQL;
         }
 
+        // Metoda za dobijanje distribuirane donacije na osnovu ID-a
         public async Task<MongoDB_DistributedDonationDto> GetDistributedDonationByIdAsync(string id)
         {
             var distributedDonation = await _unitOfWork.DistributedDonationRepository.GetById(id);
+            // Mapiranje entiteta distribuirane donacije u DTO i vraćanje korisniku
             return new MongoDB_DistributedDonationDto
             {
                 Id = distributedDonation.Id,
@@ -28,9 +31,11 @@ namespace Humanity.Application.Services_MongoDB
             };
         }
 
+        // Metoda za dobijanje svih distribuiranih donacija
         public async Task<IEnumerable<MongoDB_DistributedDonationDto>> GetAllDistributedDonationsAsync()
         {
             var distributedDonations = await _unitOfWork.DistributedDonationRepository.GetAll();
+            // Mapiranje svih entiteta distribuiranih donacija u DTO objekte
             return distributedDonations.Select(distributedDonation => new MongoDB_DistributedDonationDto
             {
                 Id = distributedDonation.Id,
@@ -41,44 +46,46 @@ namespace Humanity.Application.Services_MongoDB
             });
         }
 
+        // Metoda za kreiranje nove distribuirane donacije
         public async Task<MongoDB_DistributedDonationDto> CreateDistributedDonationAsync(MongoDB_CreateDistributedDonationDto createDistributedDonationDto)
         {
-            // Fetch the original donation
+            // Dohvatanje originalne donacije iz MongoDB baze na osnovu ID-a
             var originalDonation = await _unitOfWork.DonationRepository.GetById(createDistributedDonationDto.DonationId);
             if (originalDonation == null)
             {
                 throw new Exception("Original donation not found.");
             }
 
-            // Fetch the recipient
+            // Dohvatanje primaoca iz SQL baze na osnovu ID-a
             var recipient = await _unitOfWork_SQL.UserRepository.GetById(createDistributedDonationDto.RecipientId);
             if (recipient == null)
             {
                 throw new Exception("Recipient not found.");
             }
 
-            // Fetch the donor
+            // Dohvatanje donatora iz SQL baze na osnovu ID-a originalne donacije
             var donor = await _unitOfWork_SQL.UserRepository.GetById(originalDonation.DonorId);
             if (donor == null)
             {
                 throw new Exception("Donor not found.");
             }
 
-            // Validate the distributed value
+            // Provera da li je vrednost distribuirane donacije veća od dostupne vrednosti originalne donacije
             if (createDistributedDonationDto.Value > originalDonation.Value)
             {
                 throw new Exception("Distributed value exceeds available donation value.");
             }
 
-            // Update the original donation's value and distributed status
+            // Ažuriranje vrednosti originalne donacije i statusa distribucije
             originalDonation.Value -= createDistributedDonationDto.Value;
             if (!originalDonation.IsDistributed)
             {
-                originalDonation.IsDistributed = true;
+                originalDonation.IsDistributed = true; // Postavljanje statusa distribucije na true
             }
+            // Ažuriranje originalne donacije
             await _unitOfWork.DonationRepository.Update(originalDonation);
 
-            // Create the distributed donation
+            // Kreiranje novog entiteta distribuirane donacije
             var distributedDonation = new DistributedDonation
             {
                 DonationId = originalDonation.Id,
@@ -89,11 +96,11 @@ namespace Humanity.Application.Services_MongoDB
 
             distributedDonation.DonationId = originalDonation.Id;
 
-            // Add the distributed donation to the repository
+            // Dodavanje distribuirane donacije u repozitorijum
             var addedDistributedDonation = await _unitOfWork.DistributedDonationRepository.Add(distributedDonation);
-            await _unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync(); // Čuvanje promena u bazi
 
-            // Create the receipt
+            // Kreiranje računa za distribuiranu donaciju
             var receipt = new Receipt
             {
                 DateIssued = DateTime.UtcNow,
@@ -104,11 +111,11 @@ namespace Humanity.Application.Services_MongoDB
                 DistributedDonationId = addedDistributedDonation.Id
             };
 
-            // Add the receipt to the repository
+            // Dodavanje računa u repozitorijum
             await _unitOfWork.ReceiptRepository.Add(receipt);
-            await _unitOfWork.CompleteAsync();
+            await _unitOfWork.CompleteAsync(); // Čuvanje promena u bazi
 
-            // Map and return the result
+            // Mapiranje kreirane distribuirane donacije u DTO i vraćanje korisniku
             return new MongoDB_DistributedDonationDto
             {
                 Id = addedDistributedDonation.Id,
@@ -119,14 +126,17 @@ namespace Humanity.Application.Services_MongoDB
             };
         }
 
+        // Metoda za brisanje distribuirane donacije
         public async Task<bool> DeleteDistributedDonationAsync(string id)
         {
+            // Dohvatanje distribuirane donacije na osnovu ID-a
             var distributedDonation = await _unitOfWork.DistributedDonationRepository.GetById(id);
             if (distributedDonation == null)
             {
                 return false;
             }
 
+            // Brisanje distribuirane donacije iz repozitorijuma
             await _unitOfWork.DistributedDonationRepository.Delete(id);
             await _unitOfWork.CompleteAsync();
 

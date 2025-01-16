@@ -5,17 +5,19 @@ namespace Humanity.Application.Services_MongoDB
 {
     public class ReceiptService
     {
+        // Privatno polje za upravljanje transakcijama i repozitorijumima
         private readonly IMongoUnitOfWork _unitOfWork;
 
         public ReceiptService(IMongoUnitOfWork unitOfWork)
         {
-            _unitOfWork = unitOfWork;
+            _unitOfWork = unitOfWork; // Povezivanje sa UnitOfWork-om
         }
 
+        // Metoda za preuzimanje računa na osnovu ID-a
         public async Task<MongoDB_ReceiptDto> GetReceiptByIdAsync(string id)
         {
-            // Fetch the receipt by ID using MongoDB repository
             var receipt = await _unitOfWork.ReceiptRepository.GetById(id);
+            // Mapiranje entiteta na DTO objekat i vraćanje korisniku
             return new MongoDB_ReceiptDto
             {
                 Id = receipt.Id,
@@ -28,10 +30,11 @@ namespace Humanity.Application.Services_MongoDB
             };
         }
 
+        // Metoda za preuzimanje svih računa
         public async Task<IEnumerable<MongoDB_ReceiptDto>> GetAllReceiptsAsync()
         {
-            // Fetch all receipts using MongoDB repository
             var receipts = await _unitOfWork.ReceiptRepository.GetAll();
+            // Mapiranje liste entiteta na listu DTO objekata
             return receipts.Select(receipt => new MongoDB_ReceiptDto
             {
                 Id = receipt.Id,
@@ -44,19 +47,20 @@ namespace Humanity.Application.Services_MongoDB
             });
         }
 
+        // Metoda za brisanje računa
         public async Task<bool> DeleteReceiptAsync(string id)
         {
-            // Fetch the receipt by ID
+            // Dohvatanje računa na osnovu ID-a
             var receipt = await _unitOfWork.ReceiptRepository.GetById(id);
             if (receipt == null) return false;
 
-            // Delete the receipt from the repository
+            // Brisanje računa iz repozitorijuma
             await _unitOfWork.ReceiptRepository.Delete(id);
 
-            // Commit the changes to the database
+            // Čuvanje promena u bazi podataka
             await _unitOfWork.CompleteAsync();
 
-            return true;
+            return true; // Uspešno brisanje
         }
     }
 

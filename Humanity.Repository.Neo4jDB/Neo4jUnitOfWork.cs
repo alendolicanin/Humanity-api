@@ -19,6 +19,7 @@ namespace Humanity.Repository.Neo4jDB
         public Neo4jUnitOfWork(IAsyncSession session)
         {
             _session = session;
+            // Inicijalizujemo transakciju; BeginTransactionAsync pokreće novu transakciju
             _transaction = _session.BeginTransactionAsync().GetAwaiter().GetResult();
 
             ThankYouNoteRepository = new Neo4jThankYouNoteRepository(_transaction);
@@ -39,7 +40,9 @@ namespace Humanity.Repository.Neo4jDB
             }
             finally
             {
+                // Bez obzira na ishod, oslobađamo trenutnu transakciju
                 await _transaction.DisposeAsync();
+                // Otvaramo novu transakciju za buduće operacije
                 _transaction = await _session.BeginTransactionAsync();
             }
         }
@@ -47,7 +50,9 @@ namespace Humanity.Repository.Neo4jDB
         // Implementacija IDisposable interfejsa za pravilno oslobađanje resursa
         public void Dispose()
         {
+            // Bezbedno oslobađamo transakciju ako nije null
             _transaction?.DisposeAsync().GetAwaiter().GetResult();
+            // Bezbedno oslobađamo sesiju ako nije null
             _session.DisposeAsync().GetAwaiter().GetResult();
         }
     }

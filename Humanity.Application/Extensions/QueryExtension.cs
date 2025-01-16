@@ -5,8 +5,8 @@ namespace Humanity.API.Extensions
     public static class QueryExtension
     {
         // Ekstenzija za primenu sortiranja
-        // query - upit koji se izvršava, queryObj - objekat koji sadrži
-        // informacije o sortiranju, sortColumns - mape za sortiranje kolona
+        // query - upit nad podacima koji se izvršava sortiranje, queryObj - objekat koji sadrži
+        // informacije o sortiranju, sortColumns - mape za sortiranje kolona, povezuje nazive kolona za sortiranje
         public static IQueryable<T> ApplySorting<T>(this IQueryable<T> query, IQueryObj queryObj, Dictionary<string, Expression<Func<T, object>>> sortColumns)
         {
             // Ako nije navedena kolona po kojoj se vrši sortiranje ili ne postoji
